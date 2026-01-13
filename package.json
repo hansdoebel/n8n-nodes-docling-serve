@@ -1,0 +1,67 @@
+{
+	"name": "n8n-nodes-docling-serve",
+	"version": "0.0.1",
+	"description": "n8n community node for docling-serve document conversion API",
+	"license": "MIT",
+	"homepage": "https://github.com/hansdoebel/n8n-nodes-docling-serve#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"docling",
+		"document-conversion",
+		"pdf",
+		"markdown"
+	],
+	"author": {
+		"name": "Hans Doebel",
+		"email": "hansdev@mailbox.org"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hansdoebel/n8n-nodes-docling-serve.git"
+	},
+	"bugs": {
+		"url": "https://github.com/hansdoebel/n8n-nodes-docling-serve/issues"
+	},
+	"scripts": {
+		"build": "tsc && bun run build-icons.ts",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"dist"
+	],
+	"funding": {
+		"type": "buymeacoffee",
+		"url": "https://buymeacoffee.com/hansdoebel"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"credentials": [
+			"dist/credentials/DoclingServeApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/DoclingServe/DoclingServe.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "^0.17.0",
+		"@types/bun": "latest",
+		"eslint": "9.32.0",
+		"prettier": "3.6.2",
+		"release-it": "^19.2.3",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "^1.113.0"
+	}
+}

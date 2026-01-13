@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-docling-serve.doclingServe",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/docling-project/docling-serve"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/docling-project/docling-serve"
+			}
+		]
+	}
+}

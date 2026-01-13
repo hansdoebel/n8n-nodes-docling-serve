@@ -1,0 +1,5 @@
+.DS_Store
+*.tsbuildinfo
+*.git
+.editorconfig
+.claude
