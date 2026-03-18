@@ -58,10 +58,8 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 | --------- | ----------- |
 | Convert from URL | Convert a document from a URL (synchronous) |
 | Convert from File | Convert a document from binary data (synchronous) |
-| Convert from URL (Async) | Start async conversion from a URL |
-| Convert from File (Async) | Start async conversion from binary data |
-| Get Status | Get the status of an async conversion task |
-| Get Result | Get the result of a completed async conversion |
+| Convert from URL (Async) | Convert from URL with automatic polling |
+| Convert from File (Async) | Convert from file with automatic polling |
 
 </details>
 
@@ -70,8 +68,20 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 | Operation | Description |
 | --------- | ----------- |
-| Chunk from URL | Chunk a document from a URL |
-| Chunk from File | Chunk a document from binary data |
+| Chunk from URL | Chunk a document from a URL (synchronous) |
+| Chunk from File | Chunk a document from binary data (synchronous) |
+| Chunk from URL (Async) | Chunk from URL with automatic polling |
+| Chunk from File (Async) | Chunk from file with automatic polling |
+
+</details>
+
+<details>
+<summary><strong>Task</strong></summary>
+
+| Operation | Description |
+| --------- | ----------- |
+| Get Status | Get the status of an async task |
+| Get Result | Get the result of a completed async task |
 
 </details>
 
@@ -80,7 +90,13 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 | Operation | Description |
 | --------- | ----------- |
-| Health Check | Check the health status of the Docling Serve instance |
+| Health Check | Check server health |
+| Readiness Check | Check server readiness |
+| Get Version | Get version information |
+| Clear Converters | Clear cached converters |
+| Clear Results | Clear cached results older than specified seconds |
+| Memory Stats | Get memory usage statistics |
+| Memory Counts | Get memory object counts |
 
 </details>
 
