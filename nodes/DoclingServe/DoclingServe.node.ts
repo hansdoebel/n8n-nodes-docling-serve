@@ -12,16 +12,29 @@ import {
   convertFromFileAsync,
   convertFromUrl,
   convertFromUrlAsync,
-  getResult,
-  getStatus,
 } from "./resources/document/document.operations";
 import { chunkDescription } from "./resources/chunk";
 import {
   chunkFromFile,
+  chunkFromFileAsync,
   chunkFromUrl,
+  chunkFromUrlAsync,
 } from "./resources/chunk/chunk.operations";
+import { taskDescription } from "./resources/task";
+import {
+  getResult,
+  getStatus,
+} from "./resources/task/task.operations";
 import { systemDescription } from "./resources/system";
-import { healthCheck } from "./resources/system/system.operations";
+import {
+  healthCheck,
+  readinessCheck,
+  getVersion,
+  clearConverters,
+  clearResults,
+  memoryStats,
+  memoryCounts,
+} from "./resources/system/system.operations";
 import { OPERATIONS, RESOURCES } from "./constants";
 
 export class DoclingServe implements INodeType {
@@ -61,6 +74,10 @@ export class DoclingServe implements INodeType {
             value: "chunk",
           },
           {
+            name: "Task",
+            value: "task",
+          },
+          {
             name: "System",
             value: "system",
           },
@@ -69,6 +86,7 @@ export class DoclingServe implements INodeType {
       },
       ...documentDescription,
       ...chunkDescription,
+      ...taskDescription,
       ...systemDescription,
     ],
   };
@@ -97,12 +115,6 @@ export class DoclingServe implements INodeType {
             case OPERATIONS.DOCUMENT.CONVERT_FROM_FILE_ASYNC:
               result = await convertFromFileAsync.call(this, i);
               break;
-            case OPERATIONS.DOCUMENT.GET_STATUS:
-              result = await getStatus.call(this, i);
-              break;
-            case OPERATIONS.DOCUMENT.GET_RESULT:
-              result = await getResult.call(this, i);
-              break;
             default:
               throw new ApplicationError(
                 `Unknown document operation: ${operation}`,
@@ -116,15 +128,52 @@ export class DoclingServe implements INodeType {
             case OPERATIONS.CHUNK.CHUNK_FROM_FILE:
               result = await chunkFromFile.call(this, i);
               break;
+            case OPERATIONS.CHUNK.CHUNK_FROM_URL_ASYNC:
+              result = await chunkFromUrlAsync.call(this, i);
+              break;
+            case OPERATIONS.CHUNK.CHUNK_FROM_FILE_ASYNC:
+              result = await chunkFromFileAsync.call(this, i);
+              break;
             default:
               throw new ApplicationError(
                 `Unknown chunk operation: ${operation}`,
+              );
+          }
+        } else if (resource === RESOURCES.TASK) {
+          switch (operation) {
+            case OPERATIONS.TASK.GET_STATUS:
+              result = await getStatus.call(this, i);
+              break;
+            case OPERATIONS.TASK.GET_RESULT:
+              result = await getResult.call(this, i);
+              break;
+            default:
+              throw new ApplicationError(
+                `Unknown task operation: ${operation}`,
               );
           }
         } else if (resource === RESOURCES.SYSTEM) {
           switch (operation) {
             case OPERATIONS.SYSTEM.HEALTH_CHECK:
               result = await healthCheck.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.READINESS_CHECK:
+              result = await readinessCheck.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.GET_VERSION:
+              result = await getVersion.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.CLEAR_CONVERTERS:
+              result = await clearConverters.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.CLEAR_RESULTS:
+              result = await clearResults.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.MEMORY_STATS:
+              result = await memoryStats.call(this, i);
+              break;
+            case OPERATIONS.SYSTEM.MEMORY_COUNTS:
+              result = await memoryCounts.call(this, i);
               break;
             default:
               throw new ApplicationError(

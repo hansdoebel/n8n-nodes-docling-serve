@@ -1,4 +1,3 @@
-/* eslint-disable @n8n/community-nodes/no-restricted-imports */
 import type {
   IDataObject,
   IExecuteFunctions,
@@ -14,20 +13,111 @@ import type {
   ConvertSourceRequest,
 } from "../../types/requests";
 
+const DOCUMENT_FIELD_MAPPINGS = [
+  { uiField: "ocrEngine", apiField: "ocr_engine", formField: "ocr_engine" },
+  { uiField: "documentTimeout", apiField: "document_timeout", formField: "document_timeout" },
+  { uiField: "doOcr", apiField: "do_ocr", formField: "do_ocr" },
+  { uiField: "forceOcr", apiField: "force_ocr", formField: "force_ocr" },
+  { uiField: "doTableStructure", apiField: "do_table_structure", formField: "do_table_structure" },
+  { uiField: "includeImages", apiField: "include_images", formField: "include_images" },
+  { uiField: "tableCellMatching", apiField: "table_cell_matching", formField: "table_cell_matching" },
+  { uiField: "abortOnError", apiField: "abort_on_error", formField: "abort_on_error" },
+  { uiField: "imageExportMode", apiField: "image_export_mode", formField: "image_export_mode" },
+  { uiField: "pipeline", apiField: "pipeline", formField: "pipeline" },
+  { uiField: "tableMode", apiField: "table_mode", formField: "table_mode" },
+  { uiField: "pdfBackend", apiField: "pdf_backend", formField: "pdf_backend" },
+  { uiField: "mdPageBreakPlaceholder", apiField: "md_page_break_placeholder", formField: "md_page_break_placeholder" },
+  { uiField: "imagesScale", apiField: "images_scale", formField: "images_scale" },
+  { uiField: "doCodeEnrichment", apiField: "do_code_enrichment", formField: "do_code_enrichment" },
+  { uiField: "doFormulaEnrichment", apiField: "do_formula_enrichment", formField: "do_formula_enrichment" },
+  { uiField: "doPictureClassification", apiField: "do_picture_classification", formField: "do_picture_classification" },
+  { uiField: "doChartExtraction", apiField: "do_chart_extraction", formField: "do_chart_extraction" },
+  { uiField: "doPictureDescription", apiField: "do_picture_description", formField: "do_picture_description" },
+  { uiField: "pictureDescriptionAreaThreshold", apiField: "picture_description_area_threshold", formField: "picture_description_area_threshold" },
+  { uiField: "vlmPipelinePreset", apiField: "vlm_pipeline_preset", formField: "vlm_pipeline_preset" },
+  { uiField: "pictureDescriptionPreset", apiField: "picture_description_preset", formField: "picture_description_preset" },
+  { uiField: "codeFormulaPreset", apiField: "code_formula_preset", formField: "code_formula_preset" },
+] as const;
+
 function buildConvertOptions(
   additionalOptions: IDataObject,
 ): ConvertOptions | undefined {
-  const options: ConvertOptions = {};
+  const options: Record<string, unknown> = {};
 
-  if (additionalOptions.ocrEngine) {
-    options.ocr_engine = additionalOptions.ocrEngine as string;
+  for (const { uiField, apiField } of DOCUMENT_FIELD_MAPPINGS) {
+    if (additionalOptions[uiField] !== undefined) {
+      options[apiField] = additionalOptions[uiField];
+    }
   }
 
-  if (additionalOptions.documentTimeout) {
-    options.document_timeout = additionalOptions.documentTimeout as number;
+  // Array fields with special handling
+  if (additionalOptions.ocrLang) {
+    const langStr = additionalOptions.ocrLang as string;
+    const langs = langStr.split(",").map((s) => s.trim()).filter(Boolean);
+    if (langs.length > 0) {
+      options.ocr_lang = langs;
+    }
+  }
+  if (additionalOptions.fromFormats) {
+    const formats = additionalOptions.fromFormats as string[];
+    if (formats.length > 0) {
+      options.from_formats = formats;
+    }
+  }
+  if (additionalOptions.toFormats) {
+    const formats = additionalOptions.toFormats as string[];
+    if (formats.length > 0) {
+      options.to_formats = formats;
+    }
+  }
+  if (
+    additionalOptions.pageRangeStart !== undefined &&
+    additionalOptions.pageRangeEnd !== undefined
+  ) {
+    options.page_range = [
+      additionalOptions.pageRangeStart as number,
+      additionalOptions.pageRangeEnd as number,
+    ];
   }
 
-  return Object.keys(options).length > 0 ? options : undefined;
+  return Object.keys(options).length > 0
+    ? (options as ConvertOptions)
+    : undefined;
+}
+
+function appendDocumentFormData(
+  formData: FormData,
+  options: ConvertOptions | undefined,
+): void {
+  if (!options) return;
+  const record = options as Record<string, unknown>;
+
+  for (const { apiField, formField } of DOCUMENT_FIELD_MAPPINGS) {
+    const value = record[apiField];
+    if (value !== undefined) {
+      formData.append(formField, String(value));
+    }
+  }
+
+  // Array fields
+  if (options.ocr_lang) {
+    for (const lang of options.ocr_lang) {
+      formData.append("ocr_lang", lang);
+    }
+  }
+  if (options.from_formats) {
+    for (const fmt of options.from_formats) {
+      formData.append("from_formats", fmt);
+    }
+  }
+  if (options.to_formats) {
+    for (const fmt of options.to_formats) {
+      formData.append("to_formats", fmt);
+    }
+  }
+  if (options.page_range) {
+    formData.append("page_range", JSON.stringify(options.page_range));
+  }
 }
 
 export async function convertFromUrl(
@@ -89,15 +179,8 @@ export async function convertFromFile(
   });
   formData.append("files", blob, binaryData.filename);
 
-  if (additionalOptions.ocrEngine) {
-    formData.append("ocr_engine", additionalOptions.ocrEngine as string);
-  }
-  if (additionalOptions.documentTimeout) {
-    formData.append(
-      "document_timeout",
-      String(additionalOptions.documentTimeout),
-    );
-  }
+  const options = buildConvertOptions(additionalOptions);
+  appendDocumentFormData(formData, options);
 
   const response = await this.helpers.httpRequest({
     method: "POST",
@@ -181,15 +264,8 @@ export async function convertFromFileAsync(
   });
   formData.append("files", blob, binaryData.filename);
 
-  if (additionalOptions.ocrEngine) {
-    formData.append("ocr_engine", additionalOptions.ocrEngine as string);
-  }
-  if (additionalOptions.documentTimeout) {
-    formData.append(
-      "document_timeout",
-      String(additionalOptions.documentTimeout),
-    );
-  }
+  const options = buildConvertOptions(additionalOptions);
+  appendDocumentFormData(formData, options);
 
   const taskResponse = (await this.helpers.httpRequest({
     method: "POST",
@@ -210,38 +286,6 @@ export async function convertFromFileAsync(
 
   return {
     json: result as IDataObject,
-    pairedItem: itemIndex,
-  };
-}
-
-export async function getStatus(
-  this: IExecuteFunctions,
-  itemIndex: number,
-): Promise<INodeExecutionData> {
-  const taskId = this.getNodeParameter("taskId", itemIndex) as string;
-
-  const response = await doclingApiRequest.call(
-    this,
-    "GET",
-    `${ENDPOINTS.STATUS_POLL}/${taskId}`,
-  );
-
-  return {
-    json: response as IDataObject,
-    pairedItem: itemIndex,
-  };
-}
-
-export async function getResult(
-  this: IExecuteFunctions,
-  itemIndex: number,
-): Promise<INodeExecutionData> {
-  const taskId = this.getNodeParameter("taskId", itemIndex) as string;
-
-  const response = await getTaskResult.call(this, taskId);
-
-  return {
-    json: response as IDataObject,
     pairedItem: itemIndex,
   };
 }

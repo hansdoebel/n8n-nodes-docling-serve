@@ -1,25 +1,55 @@
-/* eslint-disable @n8n/community-nodes/no-restricted-imports */
 import type {
   IDataObject,
   IExecuteFunctions,
   INodeExecutionData,
 } from "n8n-workflow";
-import { ENDPOINTS, CHUNKER_TYPES, type ChunkerType } from "../../constants";
+import { ENDPOINTS, type ChunkerType } from "../../constants";
 import { doclingApiRequest } from "../../helpers/api";
 import { prepareBinaryData } from "../../helpers/binary";
+import { pollUntilComplete, getTaskResult } from "../../helpers/polling";
 import type {
   ChunkingOptions,
   ChunkRequest,
   ConvertOptions,
 } from "../../types/requests";
+import type { TaskStatusResponse } from "../../types/responses";
 
-function getChunkEndpoint(chunkerType: ChunkerType, isFile: boolean): string {
-  if (chunkerType === CHUNKER_TYPES.HYBRID) {
-    return isFile ? ENDPOINTS.CHUNK_HYBRID_FILE : ENDPOINTS.CHUNK_HYBRID_SOURCE;
-  }
-  return isFile
-    ? ENDPOINTS.CHUNK_HIERARCHICAL_FILE
-    : ENDPOINTS.CHUNK_HIERARCHICAL_SOURCE;
+const CHUNK_ENDPOINT_MAP: Record<string, string> = {
+  "hybrid:file:async": ENDPOINTS.CHUNK_HYBRID_FILE_ASYNC,
+  "hybrid:file:sync": ENDPOINTS.CHUNK_HYBRID_FILE,
+  "hybrid:source:async": ENDPOINTS.CHUNK_HYBRID_SOURCE_ASYNC,
+  "hybrid:source:sync": ENDPOINTS.CHUNK_HYBRID_SOURCE,
+  "hierarchical:file:async": ENDPOINTS.CHUNK_HIERARCHICAL_FILE_ASYNC,
+  "hierarchical:file:sync": ENDPOINTS.CHUNK_HIERARCHICAL_FILE,
+  "hierarchical:source:async": ENDPOINTS.CHUNK_HIERARCHICAL_SOURCE_ASYNC,
+  "hierarchical:source:sync": ENDPOINTS.CHUNK_HIERARCHICAL_SOURCE,
+};
+
+const CHUNK_FIELD_MAPPINGS = [
+  { uiField: "maxTokens", target: "chunking", apiField: "max_tokens", formField: "max_tokens" },
+  { uiField: "mergePeers", target: "chunking", apiField: "merge_peers", formField: "merge_peers" },
+  { uiField: "includeRawText", target: "chunking", apiField: "include_raw_text", formField: "chunking_include_raw_text" },
+  { uiField: "tokenizer", target: "chunking", apiField: "tokenizer", formField: "tokenizer" },
+  { uiField: "useMarkdownTables", target: "chunking", apiField: "use_markdown_tables", formField: "use_markdown_tables" },
+  { uiField: "ocrEngine", target: "convert", apiField: "ocr_engine", formField: "convert_ocr_engine" },
+  { uiField: "imageExportMode", target: "convert", apiField: "image_export_mode", formField: "convert_image_export_mode" },
+  { uiField: "doOcr", target: "convert", apiField: "do_ocr", formField: "convert_do_ocr" },
+  { uiField: "forceOcr", target: "convert", apiField: "force_ocr", formField: "convert_force_ocr" },
+  { uiField: "tableMode", target: "convert", apiField: "table_mode", formField: "convert_table_mode" },
+  { uiField: "pipeline", target: "convert", apiField: "pipeline", formField: "convert_pipeline" },
+  { uiField: "doTableStructure", target: "convert", apiField: "do_table_structure", formField: "convert_do_table_structure" },
+  { uiField: "includeImages", target: "convert", apiField: "include_images", formField: "convert_include_images" },
+  { uiField: "imagesScale", target: "convert", apiField: "images_scale", formField: "convert_images_scale" },
+  { uiField: "documentTimeout", target: "convert", apiField: "document_timeout", formField: "convert_document_timeout" },
+] as const;
+
+function getChunkEndpoint(
+  chunkerType: ChunkerType,
+  isFile: boolean,
+  isAsync: boolean,
+): string {
+  const key = `${chunkerType}:${isFile ? "file" : "source"}:${isAsync ? "async" : "sync"}`;
+  return CHUNK_ENDPOINT_MAP[key];
 }
 
 function buildChunkOptions(additionalOptions: IDataObject): {
@@ -27,31 +57,47 @@ function buildChunkOptions(additionalOptions: IDataObject): {
   convertOptions?: ConvertOptions;
   includeConvertedDoc: boolean;
 } {
-  const chunkingOptions: ChunkingOptions = {};
-  const convertOptions: ConvertOptions = {};
+  const chunkingOptions: Record<string, unknown> = {};
+  const convertOptions: Record<string, unknown> = {};
+  const targets = { chunking: chunkingOptions, convert: convertOptions };
 
-  if (additionalOptions.maxTokens !== undefined) {
-    chunkingOptions.max_tokens = additionalOptions.maxTokens as number;
-  }
-
-  if (additionalOptions.mergePeers !== undefined) {
-    chunkingOptions.merge_peers = additionalOptions.mergePeers as boolean;
-  }
-
-  if (additionalOptions.ocrEngine) {
-    convertOptions.ocr_engine = additionalOptions.ocrEngine as string;
+  for (const { uiField, target, apiField } of CHUNK_FIELD_MAPPINGS) {
+    if (additionalOptions[uiField] !== undefined) {
+      targets[target][apiField] = additionalOptions[uiField];
+    }
   }
 
   return {
-    chunkingOptions: Object.keys(chunkingOptions).length > 0
-      ? chunkingOptions
-      : undefined,
-    convertOptions: Object.keys(convertOptions).length > 0
-      ? convertOptions
-      : undefined,
-    includeConvertedDoc: (additionalOptions.includeConvertedDoc as boolean) ??
-      false,
+    chunkingOptions:
+      Object.keys(chunkingOptions).length > 0 ? (chunkingOptions as ChunkingOptions) : undefined,
+    convertOptions:
+      Object.keys(convertOptions).length > 0 ? (convertOptions as ConvertOptions) : undefined,
+    includeConvertedDoc:
+      (additionalOptions.includeConvertedDoc as boolean) ?? false,
   };
+}
+
+function appendChunkFormData(
+  formData: FormData,
+  chunkingOptions: ChunkingOptions | undefined,
+  convertOptions: ConvertOptions | undefined,
+  includeConvertedDoc: boolean,
+): void {
+  const sources: Record<string, Record<string, unknown> | undefined> = {
+    chunking: chunkingOptions as Record<string, unknown> | undefined,
+    convert: convertOptions as Record<string, unknown> | undefined,
+  };
+
+  for (const { target, apiField, formField } of CHUNK_FIELD_MAPPINGS) {
+    const value = sources[target]?.[apiField];
+    if (value !== undefined) {
+      formData.append(formField, String(value));
+    }
+  }
+
+  if (includeConvertedDoc) {
+    formData.append("include_converted_doc", "true");
+  }
 }
 
 export async function chunkFromUrl(
@@ -79,7 +125,7 @@ export async function chunkFromUrl(
     include_converted_doc: includeConvertedDoc,
   };
 
-  const endpoint = getChunkEndpoint(chunkerType, false);
+  const endpoint = getChunkEndpoint(chunkerType, false, false);
 
   const response = await doclingApiRequest.call(
     this,
@@ -94,30 +140,31 @@ export async function chunkFromUrl(
   };
 }
 
-export async function chunkFromFile(
-  this: IExecuteFunctions,
+async function executeChunkFromFile(
+  context: IExecuteFunctions,
   itemIndex: number,
+  isAsync: boolean,
 ): Promise<INodeExecutionData> {
-  const binaryPropertyName = this.getNodeParameter(
+  const binaryPropertyName = context.getNodeParameter(
     "binaryPropertyName",
     itemIndex,
   ) as string;
-  const chunkerType = this.getNodeParameter(
+  const chunkerType = context.getNodeParameter(
     "chunkerType",
     itemIndex,
   ) as ChunkerType;
-  const additionalOptions = this.getNodeParameter(
+  const additionalOptions = context.getNodeParameter(
     "additionalOptions",
     itemIndex,
     {},
   ) as IDataObject;
 
-  const credentials = await this.getCredentials("doclingServeApi");
+  const credentials = await context.getCredentials("doclingServeApi");
   const baseUrl = credentials.baseUrl as string;
   const apiKey = credentials.apiKey as string;
 
   const binaryData = await prepareBinaryData.call(
-    this,
+    context,
     itemIndex,
     binaryPropertyName,
   );
@@ -130,22 +177,11 @@ export async function chunkFromFile(
   });
   formData.append("files", blob, binaryData.filename);
 
-  if (chunkingOptions?.max_tokens !== undefined) {
-    formData.append("max_tokens", String(chunkingOptions.max_tokens));
-  }
-  if (chunkingOptions?.merge_peers !== undefined) {
-    formData.append("merge_peers", String(chunkingOptions.merge_peers));
-  }
-  if (convertOptions?.ocr_engine) {
-    formData.append("ocr_engine", convertOptions.ocr_engine);
-  }
-  if (includeConvertedDoc) {
-    formData.append("include_converted_doc", "true");
-  }
+  appendChunkFormData(formData, chunkingOptions, convertOptions, includeConvertedDoc);
 
-  const endpoint = getChunkEndpoint(chunkerType, true);
+  const endpoint = getChunkEndpoint(chunkerType, true, isAsync);
 
-  const response = await this.helpers.httpRequest({
+  const response = await context.helpers.httpRequest({
     method: "POST",
     url: `${baseUrl}${endpoint}`,
     headers: {
@@ -154,8 +190,86 @@ export async function chunkFromFile(
     body: formData,
   });
 
+  if (!isAsync) {
+    return {
+      json: response as IDataObject,
+      pairedItem: itemIndex,
+    };
+  }
+
+  const taskResponse = response as TaskStatusResponse;
+  const status = await pollUntilComplete.call(context, taskResponse.task_id);
+
+  if (status.task_status === "failure") {
+    throw new Error(`Chunk task failed: ${taskResponse.task_id}`);
+  }
+
+  const result = await getTaskResult.call(context, taskResponse.task_id);
+
   return {
-    json: response as IDataObject,
+    json: result as IDataObject,
     pairedItem: itemIndex,
   };
+}
+
+export async function chunkFromFile(
+  this: IExecuteFunctions,
+  itemIndex: number,
+): Promise<INodeExecutionData> {
+  return executeChunkFromFile(this, itemIndex, false);
+}
+
+export async function chunkFromUrlAsync(
+  this: IExecuteFunctions,
+  itemIndex: number,
+): Promise<INodeExecutionData> {
+  const sourceUrl = this.getNodeParameter("sourceUrl", itemIndex) as string;
+  const chunkerType = this.getNodeParameter(
+    "chunkerType",
+    itemIndex,
+  ) as ChunkerType;
+  const additionalOptions = this.getNodeParameter(
+    "additionalOptions",
+    itemIndex,
+    {},
+  ) as IDataObject;
+
+  const { chunkingOptions, convertOptions, includeConvertedDoc } =
+    buildChunkOptions(additionalOptions);
+
+  const requestBody: ChunkRequest = {
+    sources: [{ kind: "http", url: sourceUrl }],
+    chunking_options: chunkingOptions,
+    convert_options: convertOptions,
+    include_converted_doc: includeConvertedDoc,
+  };
+
+  const endpoint = getChunkEndpoint(chunkerType, false, true);
+
+  const taskResponse = (await doclingApiRequest.call(
+    this,
+    "POST",
+    endpoint,
+    requestBody as unknown as IDataObject,
+  )) as TaskStatusResponse;
+
+  const status = await pollUntilComplete.call(this, taskResponse.task_id);
+
+  if (status.task_status === "failure") {
+    throw new Error(`Chunk task failed: ${taskResponse.task_id}`);
+  }
+
+  const result = await getTaskResult.call(this, taskResponse.task_id);
+
+  return {
+    json: result as IDataObject,
+    pairedItem: itemIndex,
+  };
+}
+
+export async function chunkFromFileAsync(
+  this: IExecuteFunctions,
+  itemIndex: number,
+): Promise<INodeExecutionData> {
+  return executeChunkFromFile(this, itemIndex, true);
 }

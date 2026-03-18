@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-docling-serve",
-	"version": "0.0.2",
+	"version": "0.0.4",
 	"description": "n8n community node for docling-serve document conversion API",
 	"license": "MIT",
 	"homepage": "https://github.com/hansdoebel/n8n-nodes-docling-serve#readme",

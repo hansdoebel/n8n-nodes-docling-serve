@@ -12,12 +12,12 @@ const showOnlyForChunk = {
 
 const showForChunkUrl = {
 	resource: ['chunk'],
-	operation: ['chunkFromUrl'],
+	operation: ['chunkFromUrl', 'chunkFromUrlAsync'],
 };
 
 const showForChunkFile = {
 	resource: ['chunk'],
-	operation: ['chunkFromFile'],
+	operation: ['chunkFromFile', 'chunkFromFileAsync'],
 };
 
 export const chunkDescription: INodeProperties[] = [
@@ -41,6 +41,18 @@ export const chunkDescription: INodeProperties[] = [
 				value: 'chunkFromFile',
 				action: 'Chunk a document from file',
 				description: 'Chunk a document from binary data',
+			},
+			{
+				name: 'Chunk From URL (Async)',
+				value: 'chunkFromUrlAsync',
+				action: 'Chunk a document from URL asynchronously',
+				description: 'Chunk a document from an HTTP URL as an async task with polling',
+			},
+			{
+				name: 'Chunk From File (Async)',
+				value: 'chunkFromFileAsync',
+				action: 'Chunk a document from file asynchronously',
+				description: 'Chunk a document from binary data as an async task with polling',
 			},
 		],
 		default: 'chunkFromUrl',

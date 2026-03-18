@@ -1,4 +1,4 @@
-/* eslint-disable @n8n/community-nodes/no-restricted-imports, @n8n/community-nodes/no-restricted-globals */
+/* eslint-disable @n8n/community-nodes/no-restricted-globals */
 import type { IExecuteFunctions } from "n8n-workflow";
 import type { TaskStatusResponse } from "../types/responses";
 import { ENDPOINTS, POLLING } from "../constants";

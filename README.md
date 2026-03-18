@@ -94,6 +94,18 @@ npm run build
 npm run lint
 ```
 
+## Early Development Notice
+
+This node is in an **early development stage**. Not all functions have been fully tested yet. If you encounter any issues, please [open an issue](https://github.com/hansdoebel/n8n-nodes-docling-serve/issues) on GitHub.
+
+## AI Disclosure
+
+This project was developed with the assistance of AI. The following tools were used during development:
+
+- **[Claude Code](https://claude.com/claude-code)** (Anthropic) — Claude Opus 4.6 was used for code generation, refactoring, and documentation.
+
+All AI-generated code has been reviewed and validated by the maintainer.
+
 ## License
 
 [MIT](LICENSE.md)

@@ -3,7 +3,6 @@ import {
   additionalOptionsProperty,
   binaryPropertyNameProperty,
   sourceUrlProperty,
-  taskIdProperty,
 } from "./document.properties";
 
 const showOnlyForDocument = {
@@ -18,11 +17,6 @@ const showForConvertUrl = {
 const showForConvertFile = {
   resource: ["document"],
   operation: ["convertFromFile", "convertFromFileAsync"],
-};
-
-const showForTaskOperations = {
-  resource: ["document"],
-  operation: ["getStatus", "getResult"],
 };
 
 const showForConvertOperations = {
@@ -44,7 +38,6 @@ export const documentDescription: INodeProperties[] = [
     displayOptions: {
       show: showOnlyForDocument,
     },
-    // eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
     options: [
       {
         name: "Convert From File",
@@ -70,18 +63,6 @@ export const documentDescription: INodeProperties[] = [
         action: "Convert a document from URL asynchronously",
         description: "Convert a document from URL with auto-polling",
       },
-      {
-        name: "Get Status",
-        value: "getStatus",
-        action: "Get task status",
-        description: "Get the status of an async conversion task",
-      },
-      {
-        name: "Get Result",
-        value: "getResult",
-        action: "Get task result",
-        description: "Get the result of a completed async task",
-      },
     ],
     default: "convertFromUrl",
   },
@@ -95,12 +76,6 @@ export const documentDescription: INodeProperties[] = [
     ...binaryPropertyNameProperty,
     displayOptions: {
       show: showForConvertFile,
-    },
-  },
-  {
-    ...taskIdProperty,
-    displayOptions: {
-      show: showForTaskOperations,
     },
   },
   {
