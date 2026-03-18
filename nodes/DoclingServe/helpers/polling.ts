@@ -1,18 +1,14 @@
 /* eslint-disable @n8n/community-nodes/no-restricted-imports, @n8n/community-nodes/no-restricted-globals */
 import type { IExecuteFunctions } from "n8n-workflow";
-import type { TaskStatusResponse } from "@docling/types/responses";
-import { ENDPOINTS } from "@docling/constants/endpoints";
+import type { TaskStatusResponse } from "../types/responses";
+import { ENDPOINTS, POLLING } from "../constants";
 import { doclingApiRequest } from "./api";
-
-const COMPLETED_STATUSES = ["success", "failure"];
-const DEFAULT_MAX_ATTEMPTS = 60;
-const DEFAULT_INTERVAL_MS = 2000;
 
 export async function pollUntilComplete(
   this: IExecuteFunctions,
   taskId: string,
-  maxAttempts = DEFAULT_MAX_ATTEMPTS,
-  intervalMs = DEFAULT_INTERVAL_MS,
+  maxAttempts = POLLING.DEFAULT_MAX_ATTEMPTS,
+  intervalMs = POLLING.DEFAULT_INTERVAL_MS,
 ): Promise<TaskStatusResponse> {
   let attempts = 0;
 
@@ -23,7 +19,7 @@ export async function pollUntilComplete(
       `${ENDPOINTS.STATUS_POLL}/${taskId}`,
     )) as TaskStatusResponse;
 
-    if (COMPLETED_STATUSES.includes(status.task_status)) {
+    if ((POLLING.COMPLETED_STATUSES as readonly string[]).includes(status.task_status)) {
       return status;
     }
 

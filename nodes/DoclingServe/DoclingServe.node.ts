@@ -22,13 +22,13 @@ import {
 } from "./resources/chunk/chunk.operations";
 import { systemDescription } from "./resources/system";
 import { healthCheck } from "./resources/system/system.operations";
+import { OPERATIONS, RESOURCES } from "./constants";
 
 export class DoclingServe implements INodeType {
   description: INodeTypeDescription = {
     displayName: "Docling Serve",
     name: "doclingServe",
-    // eslint-disable-next-line @n8n/community-nodes/icon-validation
-    icon: "file:docling-serve.svg",
+    icon: "file:../../icons/docling-serve.svg",
     group: ["transform"],
     version: 1,
     subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -83,24 +83,24 @@ export class DoclingServe implements INodeType {
       try {
         let result: INodeExecutionData;
 
-        if (resource === "document") {
+        if (resource === RESOURCES.DOCUMENT) {
           switch (operation) {
-            case "convertFromUrl":
+            case OPERATIONS.DOCUMENT.CONVERT_FROM_URL:
               result = await convertFromUrl.call(this, i);
               break;
-            case "convertFromFile":
+            case OPERATIONS.DOCUMENT.CONVERT_FROM_FILE:
               result = await convertFromFile.call(this, i);
               break;
-            case "convertFromUrlAsync":
+            case OPERATIONS.DOCUMENT.CONVERT_FROM_URL_ASYNC:
               result = await convertFromUrlAsync.call(this, i);
               break;
-            case "convertFromFileAsync":
+            case OPERATIONS.DOCUMENT.CONVERT_FROM_FILE_ASYNC:
               result = await convertFromFileAsync.call(this, i);
               break;
-            case "getStatus":
+            case OPERATIONS.DOCUMENT.GET_STATUS:
               result = await getStatus.call(this, i);
               break;
-            case "getResult":
+            case OPERATIONS.DOCUMENT.GET_RESULT:
               result = await getResult.call(this, i);
               break;
             default:
@@ -108,12 +108,12 @@ export class DoclingServe implements INodeType {
                 `Unknown document operation: ${operation}`,
               );
           }
-        } else if (resource === "chunk") {
+        } else if (resource === RESOURCES.CHUNK) {
           switch (operation) {
-            case "chunkFromUrl":
+            case OPERATIONS.CHUNK.CHUNK_FROM_URL:
               result = await chunkFromUrl.call(this, i);
               break;
-            case "chunkFromFile":
+            case OPERATIONS.CHUNK.CHUNK_FROM_FILE:
               result = await chunkFromFile.call(this, i);
               break;
             default:
@@ -121,9 +121,9 @@ export class DoclingServe implements INodeType {
                 `Unknown chunk operation: ${operation}`,
               );
           }
-        } else if (resource === "system") {
+        } else if (resource === RESOURCES.SYSTEM) {
           switch (operation) {
-            case "healthCheck":
+            case OPERATIONS.SYSTEM.HEALTH_CHECK:
               result = await healthCheck.call(this, i);
               break;
             default:

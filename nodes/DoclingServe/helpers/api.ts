@@ -20,7 +20,7 @@ export async function doclingApiRequest(
 		url: `${baseUrl}${endpoint}`,
 		headers: {
 			'Content-Type': 'application/json',
-			...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+			...(apiKey ? { 'X-Api-Key': apiKey } : {}),
 		},
 		body,
 		qs,

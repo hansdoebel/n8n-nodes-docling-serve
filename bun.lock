@@ -5,15 +5,15 @@
     "": {
       "name": "n8n-nodes-<...>",
       "devDependencies": {
-        "@n8n/node-cli": "*",
+        "@n8n/node-cli": "^0.17.0",
         "@types/bun": "latest",
         "eslint": "9.32.0",
         "prettier": "3.6.2",
-        "release-it": "^19.0.4",
+        "release-it": "^19.2.3",
         "typescript": "5.9.2",
       },
       "peerDependencies": {
-        "n8n-workflow": "*",
+        "n8n-workflow": "^1.113.0",
       },
     },
   },

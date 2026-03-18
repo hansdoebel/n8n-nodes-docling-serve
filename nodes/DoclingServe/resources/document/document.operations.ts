@@ -4,15 +4,15 @@ import type {
   IExecuteFunctions,
   INodeExecutionData,
 } from "n8n-workflow";
-import { ENDPOINTS } from "@docling/constants/endpoints";
-import { doclingApiRequest } from "@docling/helpers/api";
-import { prepareBinaryData } from "@docling/helpers/binary";
-import { getTaskResult, pollUntilComplete } from "@docling/helpers/polling";
-import type { TaskStatusResponse } from "@docling/types/responses";
+import { ENDPOINTS } from "../../constants";
+import { doclingApiRequest } from "../../helpers/api";
+import { prepareBinaryData } from "../../helpers/binary";
+import { getTaskResult, pollUntilComplete } from "../../helpers/polling";
+import type { TaskStatusResponse } from "../../types/responses";
 import type {
   ConvertOptions,
   ConvertSourceRequest,
-} from "@docling/types/requests";
+} from "../../types/requests";
 
 function buildConvertOptions(
   additionalOptions: IDataObject,

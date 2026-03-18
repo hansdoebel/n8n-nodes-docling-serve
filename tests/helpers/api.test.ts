@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { ENDPOINTS } from '../../nodes/DoclingServe/constants/endpoints';
+import { ENDPOINTS } from '../../nodes/DoclingServe/constants';
 
 const BASE_URL = 'http://127.0.0.1:5001';
 

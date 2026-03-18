@@ -1,6 +1,5 @@
 import { describe, test, expect, beforeAll } from 'bun:test';
-import { ENDPOINTS } from '../../nodes/DoclingServe/constants/endpoints';
-import { CHUNKER_TYPES } from '../../nodes/DoclingServe/constants/chunkers';
+import { ENDPOINTS, CHUNKER_TYPES } from '../../nodes/DoclingServe/constants';
 
 const BASE_URL = 'http://127.0.0.1:5001';
 const TEST_URL = 'https://raw.githubusercontent.com/docling-project/docling/main/README.md';

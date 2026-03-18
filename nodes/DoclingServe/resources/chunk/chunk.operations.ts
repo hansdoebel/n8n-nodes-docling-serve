@@ -4,15 +4,14 @@ import type {
   IExecuteFunctions,
   INodeExecutionData,
 } from "n8n-workflow";
-import { ENDPOINTS } from "@docling/constants/endpoints";
-import { CHUNKER_TYPES, type ChunkerType } from "@docling/constants/chunkers";
-import { doclingApiRequest } from "@docling/helpers/api";
-import { prepareBinaryData } from "@docling/helpers/binary";
+import { ENDPOINTS, CHUNKER_TYPES, type ChunkerType } from "../../constants";
+import { doclingApiRequest } from "../../helpers/api";
+import { prepareBinaryData } from "../../helpers/binary";
 import type {
   ChunkingOptions,
   ChunkRequest,
   ConvertOptions,
-} from "@docling/types/requests";
+} from "../../types/requests";
 
 function getChunkEndpoint(chunkerType: ChunkerType, isFile: boolean): string {
   if (chunkerType === CHUNKER_TYPES.HYBRID) {

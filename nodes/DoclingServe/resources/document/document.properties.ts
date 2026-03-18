@@ -1,6 +1,6 @@
 /* eslint-disable @n8n/community-nodes/no-restricted-imports */
 import type { INodeProperties } from "n8n-workflow";
-import { OUTPUT_FORMATS } from "@docling/constants/formats";
+import { OUTPUT_FORMATS } from "../../constants";
 
 export const sourceUrlProperty: INodeProperties = {
   displayName: "Source URL",

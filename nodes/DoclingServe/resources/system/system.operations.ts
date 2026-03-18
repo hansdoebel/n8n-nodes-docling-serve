@@ -4,8 +4,8 @@ import type {
   IExecuteFunctions,
   INodeExecutionData,
 } from "n8n-workflow";
-import { ENDPOINTS } from "@docling/constants/endpoints";
-import { doclingApiRequest } from "@docling/helpers/api";
+import { ENDPOINTS } from "../../constants";
+import { doclingApiRequest } from "../../helpers/api";
 
 export async function healthCheck(
   this: IExecuteFunctions,

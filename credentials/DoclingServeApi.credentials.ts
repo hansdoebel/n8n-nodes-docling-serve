@@ -1,14 +1,12 @@
 import type { Icon, ICredentialType, INodeProperties } from "n8n-workflow";
 
-// eslint-disable-next-line @n8n/community-nodes/credential-test-required
 export class DoclingServeApi implements ICredentialType {
   name = "doclingServeApi";
   displayName = "Docling Serve API";
 
   testedBy = "doclingServe";
   documentationUrl = "https://github.com/docling-project/docling-serve";
-  // eslint-disable-next-line @n8n/community-nodes/icon-validation
-  icon: Icon = "file:docling-serve.svg";
+  icon: Icon = "file:../icons/docling-serve.svg";
   properties: INodeProperties[] = [
     {
       displayName: "Base URL",

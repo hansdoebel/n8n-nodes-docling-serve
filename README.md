@@ -1,18 +1,37 @@
-# n8n-nodes-docling-serve
+<h1 align="center">
+  <br>
+  n8n-nodes-docling-serve
+  <br>
+</h1>
 
-n8n community node for integrating Docling Serve document conversion API with your workflows.
+<p align="center">
+  <a href="https://www.npmjs.com/package/n8n-nodes-docling-serve"><img src="https://img.shields.io/npm/v/n8n-nodes-docling-serve.svg" alt="NPM Version"></a>
+  <a href="https://github.com/hansdoebel/n8n-nodes-docling-serve/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/hansdoebel/n8n-nodes-docling-serve" alt="GitHub License"></a>
+  <a href="https://www.npmjs.com/package/n8n-nodes-docling-serve"><img src="https://img.shields.io/npm/dt/n8n-nodes-docling-serve.svg" alt="NPM Downloads"></a>
+  <a href="https://www.npmjs.com/package/n8n-nodes-docling-serve"><img src="https://img.shields.io/npm/last-update/n8n-nodes-docling-serve" alt="NPM Last Update"></a>
+  <img src="https://img.shields.io/badge/n8n-2.11.4-blue" alt="n8n 2.11.4">
+</p>
 
-## Table of Contents
+<p align="center">
+  <a href="#installation">Installation</a> |
+  <a href="#credentials">Credentials</a> |
+  <a href="#resources">Resources</a> |
+  <a href="#development">Development</a> |
+  <a href="#license">License</a>
+</p>
 
-- [Installation](#installation)
-- [Credentials](#credentials)
-- [Operations](#operations)
-- [Compatibility](#compatibility)
-- [Development Notes](#development-notes)
-- [Resources](#resources)
-- [Version History](#version-history)
+---
+
+An n8n community node for integrating [Docling Serve](https://github.com/docling-project/docling-serve) document conversion API with your workflows.
 
 ## Installation
+
+1. Create a new workflow or open an existing one
+2. Open the nodes panel by selecting **+** or pressing **N**
+3. Search for **Docling Serve**
+4. Select **Install** to install the node for your instance
+
+OR
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
@@ -24,20 +43,19 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Credentials
 
-### Docling Serve API
-
-1. Deploy a Docling Serve instance (see [Docling Serve documentation](https://github.com/docling-project/docling-serve))
-2. In n8n: Create new credential > **Docling Serve API**
+1. Deploy a [Docling Serve](https://github.com/docling-project/docling-serve) instance
+2. In n8n, create a new **Docling Serve API** credential
 3. Enter the **Base URL** of your Docling Serve instance (default: `http://127.0.0.1:5001`)
 4. Optionally enter an **API Key** if your server requires authentication
-5. Save
+5. Save the credential
 
-## Operations
+## Resources
 
-### Document
+<details>
+<summary><strong>Document</strong></summary>
 
 | Operation | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | Convert from URL | Convert a document from a URL (synchronous) |
 | Convert from File | Convert a document from binary data (synchronous) |
 | Convert from URL (Async) | Start async conversion from a URL |
@@ -45,63 +63,43 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 | Get Status | Get the status of an async conversion task |
 | Get Result | Get the result of a completed async conversion |
 
-### Chunk
+</details>
+
+<details>
+<summary><strong>Chunk</strong></summary>
 
 | Operation | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | Chunk from URL | Chunk a document from a URL |
 | Chunk from File | Chunk a document from binary data |
 
-### System
+</details>
+
+<details>
+<summary><strong>System</strong></summary>
 
 | Operation | Description |
-|-----------|-------------|
+| --------- | ----------- |
 | Health Check | Check the health status of the Docling Serve instance |
 
-## Compatibility
+</details>
 
-Tested with:
-
-- n8n Version: 2.2.3
-- Node Version: 22.11.0
-
-## Development Notes
-
-### Kill n8n Process
-
-Add this alias to your `~/.zshrc` for quick n8n process termination during development:
+## Development
 
 ```bash
-alias kill-n8n="kill -9 \$(lsof -ti tcp:5678 -sTCP:LISTEN)"
+git clone https://github.com/hansdoebel/n8n-nodes-docling-serve.git
+cd n8n-nodes-docling-serve
+npm install
+npm run build
+npm run lint
 ```
 
-After adding, reload your shell: `source ~/.zshrc`
+## License
 
-### Publish New Release
+[MIT](LICENSE.md)
 
-```
-# Bump the version
-npm version patch|minor|major
-```
-
-```
-# push the tag to GitHub
-git push origin v1.2.3
-```
-
-## Resources
-
-- [n8n Website](https://n8n.io/)
-- [n8n Community Nodes Documentation](https://docs.n8n.io/integrations/community-nodes/)
-- [n8n Documentation for LLMs](https://docs.n8n.io/llms.txt)
-
-- [Docling Project Website](https://docling-project.github.io/docling/)
-- [Docling Serve GitHub](https://github.com/docling-project/docling-serve)
-- [Docling GitHub](https://github.com/DS4SD/docling)
-
-- [GitHub Repository](https://github.com/hansdoebel/n8n-nodes-docling-serve)
-- [@n8n/node-cli README](https://raw.githubusercontent.com/n8n-io/n8n/refs/heads/master/packages/%40n8n/node-cli/README.md)
-
-## Version History
-
-- `0.0.1` - Initial release
+<p align="center">
+  <a href="https://github.com/hansdoebel/n8n-nodes-docling-serve">GitHub</a> |
+  <a href="https://github.com/hansdoebel/n8n-nodes-docling-serve/issues">Issues</a> |
+  <a href="https://github.com/docling-project/docling-serve">Docling Serve Docs</a>
+</p>

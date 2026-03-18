@@ -1,6 +1,6 @@
 /* eslint-disable @n8n/community-nodes/no-restricted-imports */
 import type { INodeProperties } from "n8n-workflow";
-import { CHUNKER_TYPES } from "@docling/constants/chunkers";
+import { CHUNKER_TYPES } from "../../constants";
 
 // eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 export const chunkerTypeProperty: INodeProperties = {
