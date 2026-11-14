@@ -4,7 +4,7 @@ import type {
   INodeExecutionData,
 } from "n8n-workflow";
 import { ENDPOINTS, type ChunkerType } from "../../constants";
-import { doclingApiRequest } from "../../helpers/api";
+import { doclingApiRequest, getAuthHeaders } from "../../helpers/api";
 import { prepareBinaryData } from "../../helpers/binary";
 import { pollUntilComplete, getTaskResult } from "../../helpers/polling";
 import type {
@@ -185,7 +185,7 @@ async function executeChunkFromFile(
     method: "POST",
     url: `${baseUrl}${endpoint}`,
     headers: {
-      ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+      ...getAuthHeaders(apiKey),
     },
     body: formData,
   });

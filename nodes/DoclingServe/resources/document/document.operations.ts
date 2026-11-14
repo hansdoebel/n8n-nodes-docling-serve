@@ -4,7 +4,7 @@ import type {
   INodeExecutionData,
 } from "n8n-workflow";
 import { ENDPOINTS } from "../../constants";
-import { doclingApiRequest } from "../../helpers/api";
+import { doclingApiRequest, getAuthHeaders } from "../../helpers/api";
 import { prepareBinaryData } from "../../helpers/binary";
 import { getTaskResult, pollUntilComplete } from "../../helpers/polling";
 import type { TaskStatusResponse } from "../../types/responses";
@@ -186,7 +186,7 @@ export async function convertFromFile(
     method: "POST",
     url: `${baseUrl}${ENDPOINTS.CONVERT_FILE}`,
     headers: {
-      ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+      ...getAuthHeaders(apiKey),
     },
     body: formData,
   });
@@ -271,7 +271,7 @@ export async function convertFromFileAsync(
     method: "POST",
     url: `${baseUrl}${ENDPOINTS.CONVERT_FILE_ASYNC}`,
     headers: {
-      ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+      ...getAuthHeaders(apiKey),
     },
     body: formData,
   })) as TaskStatusResponse;

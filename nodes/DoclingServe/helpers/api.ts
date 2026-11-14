@@ -4,6 +4,10 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 
+export function getAuthHeaders(apiKey?: string): Record<string, string> {
+	return apiKey ? { 'X-Api-Key': apiKey } : {};
+}
+
 export async function doclingApiRequest(
 	this: IExecuteFunctions,
 	method: IHttpRequestMethods,
@@ -20,7 +24,7 @@ export async function doclingApiRequest(
 		url: `${baseUrl}${endpoint}`,
 		headers: {
 			'Content-Type': 'application/json',
-			...(apiKey ? { 'X-Api-Key': apiKey } : {}),
+			...getAuthHeaders(apiKey),
 		},
 		body,
 		qs,
